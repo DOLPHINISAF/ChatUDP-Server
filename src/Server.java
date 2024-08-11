@@ -1,7 +1,5 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.*;
 import java.time.*;
@@ -10,8 +8,12 @@ import java.util.Objects;
 import java.util.Vector;
 import java.util.logging.*;
 
-
+/**
+ * @author Nedelescu Catalin
+ * the main class of the server side of a chat used in a graded project
+ */
 public class Server {
+    /** enum used to ID every sent/received packet */
     enum PacketType{
         CONNECTREQUEST(0),
         DISCONNECT(1),
@@ -40,16 +42,19 @@ public class Server {
     }
 
     boolean serverIsRunning;
-
+    /**
+     * manager is used to handle in a separate thread every packet received/sent
+     */
     ConnectionManager manager;
+
     Logger logger = Logger.getLogger(Server.class.getName());
     Handler fileHandler;
+
     private ArrayList<Connection> userConnection;
 
     JTextArea log_conosle;
     JList list;
     JFrame frame;
-
 
     Vector<String> users;
 
@@ -64,7 +69,7 @@ public class Server {
         serverIsRunning = true;
 
         try {
-             fileHandler = new FileHandler("./logs.txt");
+             fileHandler = new FileHandler("./logs.txt",true);
              fileHandler.setFormatter(new SimpleFormatter());
 
              logger.addHandler(fileHandler);
@@ -182,7 +187,6 @@ public class Server {
 
 
     }
-
     private void HandleReceivedMessage(DatagramPacket packet){
 
         //structura unui pachet de tip message trebuie sa fie:
@@ -218,7 +222,6 @@ public class Server {
             }
         }
     }
-
     private void HandleDisconnect(DatagramPacket packet){
         String removedUserName = "";
         //cautam userul de sters din lista de date a conexiunilor cu useri si il stergem
@@ -226,6 +229,7 @@ public class Server {
             if(userConnection.get(i).IP.equals(packet.getAddress())){
                 removedUserName = userConnection.get(i).name;
                 userConnection.remove(i);
+                return;
             }
         }
         //cautam userul de sters din lista afisata cu numele userilor si il stergem
@@ -233,6 +237,7 @@ public class Server {
             if(users.get(i).equals(removedUserName)){
                 users.remove(i);
                 list.repaint();
+                return;
             }
         }
 
@@ -312,12 +317,9 @@ public class Server {
         frame.add(logConsoleScrollBar,BorderLayout.CENTER);
 
         JButton quit = new JButton("STOP");
-        quit.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                serverIsRunning = false;
-                logger.info("Stopping server!");
-            }
+        quit.addActionListener(e -> {
+            serverIsRunning = false;
+            logger.info("Stopping server!");
         });
 
         GridLayout tempLay = new GridLayout(2,1);

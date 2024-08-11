@@ -1,6 +1,8 @@
 import java.io.IOException;
 import java.net.*;
-
+/**
+ * the connection manager
+ */
 public class ConnectionManager extends Thread{
 
     public DatagramSocket socket;
@@ -22,14 +24,15 @@ public class ConnectionManager extends Thread{
         }
         catch (IOException ignored){}
     }
-
+    /**
+     * when the thread is started it continuosly receives packets from the newtwork until the server is stopped
+     */
     public void run(){
         while(receivingPackets){
             GetIncomingPackages();
         }
         socket.close();
     }
-
     public void GetIncomingPackages(){
         //if we already received a packet we wait until it was read and used
         if(packetReceived) return;
@@ -41,6 +44,5 @@ public class ConnectionManager extends Thread{
         catch (IOException e) {
             System.out.println("Caught exception at thread. " + e.getMessage());
         }
-
     }
 }
